@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
             if rif_a:
                 print(f"✅ ASSEGNATO: {rif_a.nome} in {tempo_a:.0f} minuti.")
-                risultati_finali.append((fam, rif_a, path_a, tempo_a))
+                risultati_finali.append((fam, rif_a, path_a, path_d, tempo_a))
 
         # Visualizza le mappe
         visualizza_simulazioni_personalizzate(grafo, risultati_finali)
