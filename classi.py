@@ -1,5 +1,6 @@
 from config import VELOCITA_AUTO, VELOCITA_PIEDI, VELOCITA_FRAGILI
 
+
 class NucleoFamiliare:
     def __init__(self, nome, lat, lon, in_auto=False, con_fragili=False):
         self.nome = nome
@@ -17,6 +18,7 @@ class NucleoFamiliare:
         else:
             self.speed_ms = VELOCITA_PIEDI / 3.6
             self.descrizione = "[VELOCE] A Piedi"
+
 
 class PuntoSicuro:
     def __init__(self, nome, lat, lon):

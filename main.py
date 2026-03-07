@@ -5,11 +5,11 @@ from AI import scegli_rifugio_migliore
 from visualization import visualizza_simulazioni_personalizzate
 
 if __name__ == "__main__":
-    #Scarica Mappa
+    # Scarica Mappa
     grafo = scarica_grafo()
 
     if grafo:
-        #I vari punti sicuri dove devono andare le persone
+        # I vari punti sicuri dove devono andare le persone
         rifugi = [
             PuntoSicuro("HUB Monterusciello", 40.8650, 14.0630),
             PuntoSicuro("Porto di Pozzuoli", 40.8214, 14.1213),
@@ -28,13 +28,20 @@ if __name__ == "__main__":
             NucleoFamiliare("Studenti", 40.8500, 14.1500, in_auto=False, con_fragili=False)
         ]
 
-        #Calcola percorsi
+        # Calcola percorsi
         risultati_finali = []
         for fam in popolazione:
-            best_rif, path, tempo = scegli_rifugio_migliore(grafo, fam, rifugi)
-            if best_rif:
-                print(f"✅ ASSEGNATO: {best_rif.nome} in {tempo:.0f} minuti.")
-                risultati_finali.append((fam, best_rif, path, tempo))
+            #per l'algoritmo A*
+            rif_a, path_a, tempo_a, exec_a=scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="A*")
+            #per l'algoritmo Dijkstra
+            rif_d,path_d,tempo_d,exec_d=scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="dijkstra")
+            #facciamo un confronto tra i due
+            print(f"A* -> tempo dell'algoritmo: {exec_a:.4f}s")
+            print(f"Dijkstra -> tempo dell'algoritmo: {exec_d:.4f}s")
 
-        #Visualizza le mappe
+            if rif_a:
+                print(f"✅ ASSEGNATO: {rif_a.nome} in {tempo_a:.0f} minuti.")
+                risultati_finali.append((fam, rif_a, path_a, tempo_a))
+
+        # Visualizza le mappe
         visualizza_simulazioni_personalizzate(grafo, risultati_finali)

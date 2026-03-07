@@ -3,6 +3,7 @@ import networkx as nx
 from config import BBOX_NAPOLI
 from utils import dist_metri
 
+
 def scarica_grafo():
     print("⬇️ Download mappa ...")
     url = "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
@@ -37,6 +38,7 @@ def scarica_grafo():
 
     print(f"✅ Grafo pronto! {G.number_of_nodes()} nodi.")
     return G
+
 
 def get_nearest_node(G, lat, lon):
     """Trova il nodo del grafo più vicino a una coordinata GPS."""
