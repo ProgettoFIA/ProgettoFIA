@@ -1,16 +1,3 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
-from network import scarica_grafo, get_nearest_node
-from classi import NucleoFamiliare, PuntoSicuro
-from AI import scegli_rifugio_migliore
-import pickle
-import os
-
-app = FastAPI(title="Eruplan FIA Service")
-
-grafo_globale = None
-
 import os
 import pickle
 from contextlib import asynccontextmanager
@@ -42,6 +29,7 @@ async def lifespan(app: FastAPI):
     print("Spegnimento del server FIA...")
 
 app = FastAPI(title="Eruplan FIA Service", lifespan=lifespan)
+
 class FamigliaData(BaseModel):
     nome: str
     lat: float
