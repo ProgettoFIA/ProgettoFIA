@@ -26,13 +26,14 @@ if __name__ == "__main__":
             NucleoFamiliare("Fam. Rossi", 40.8320, 14.2260, in_auto=True),
             NucleoFamiliare("Fam. Esposito", 40.8160, 14.1700, in_auto=True, con_fragili=True),
             NucleoFamiliare("Studenti", 40.8500, 14.1500, in_auto=False, con_fragili=False)
+            #todo: fare un centinaio di esempi con cui fare i test
         ]
 
         # Calcola percorsi
         risultati_finali = []
         for fam in popolazione:
             #per l'algoritmo A*
-            rif_a, path_a, tempo_a, exec_a=scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="A*")
+            rif_a, path_a, tempo_a, exec_a=scegli_rifugio_migliore(grafo, fam, rifugi, algoritmo="A*",tipo_euristica="euclidea")
             #per l'algoritmo Dijkstra
             rif_d,path_d,tempo_d,exec_d=scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="dijkstra")
             #facciamo un confronto tra i due
