@@ -4,20 +4,44 @@ from typing import List
 from network import scarica_grafo, get_nearest_node
 from classi import NucleoFamiliare, PuntoSicuro
 from AI import scegli_rifugio_migliore
+import pickle
+import os
 
 app = FastAPI(title="Eruplan FIA Service")
 
 grafo_globale = None
 
-@app.on_event("startup")
-def startup_event():
-    global grafo_globale
-    print("⬇️ Scaricamento del grafo all'avvio del server...")
-    grafo_globale = scarica_grafo()
-    if grafo_globale is None:
-        print("⚠️ Errore critico nel caricamento del grafo!")
+import os
+import pickle
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
+from network import scarica_grafo, get_nearest_node
+from classi import NucleoFamiliare, PuntoSicuro
+from AI import scegli_rifugio_migliore
 
-# Struttura dei dati JSON
+grafo_globale = None
+
+# NUOVO METODO LIFESPAN
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global grafo_globale
+    file_mappa = "mappa_napoli.pkl"
+    
+    if os.path.exists(file_mappa):
+        print(f"Caricamento del grafo dal file locale {file_mappa}...")
+        with open(file_mappa, "rb") as f:
+            grafo_globale = pickle.load(f)
+        print("Mappa caricata istantaneamente!")
+    else:
+        print("ERRORE: mappa_napoli.pkl non trovato! Tentativo di download...")
+        grafo_globale = scarica_grafo()
+        
+    yield
+    print("Spegnimento del server FIA...")
+
+app = FastAPI(title="Eruplan FIA Service", lifespan=lifespan)
 class FamigliaData(BaseModel):
     nome: str
     lat: float
