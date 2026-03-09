@@ -18,7 +18,7 @@ if __name__ == "__main__":
             PuntoSicuro("Ippodromo Agnano", 40.8260, 14.1450)
         ]
 
-        print("📍 Indicizzazione Rifugi...")
+        print("Indicizzazione Rifugi...")
         for r in rifugi:
             r.nodo_grafo = get_nearest_node(grafo, r.lat, r.lon)
 
