@@ -66,12 +66,17 @@ def calcola_percorso(req: CalcoloRequest):
     
     if rif_migliore is None:
         return {"status": "error", "message": "Nessun percorso trovato per la famiglia."}
+    
+    #Traduce i nodi in coordinate
+    coords_percorso = [{"lat": grafo_globale.nodes[n]['pos'][0], "lon": grafo_globale.nodes[n]['pos'][1]} for n in percorso]
+      
     return {
         "status": "success",
         "famiglia": fam.nome,
         "rifugio_assegnato": rif_migliore.nome,
         "tempo_stimato_minuti": round(tempo, 2),
         "tempo_esecuzione_ai_sec": round(exec_time, 4),
-        "nodi_esplorati": nodi_esplorati,  #NUOVA METRICA AGGIUNTA
-        "percorso_nodi": percorso
+        "nodi_esplorati": nodi_esplorati, #NUOVA METRICA AGGIUNTA
+        "percorso_nodi": percorso,
+        "percorso_coordinate": coords_percorso
     }
