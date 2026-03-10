@@ -5,7 +5,7 @@ from utils import dist_metri
 
 
 def scarica_grafo():
-    print("⬇️ Download mappa ...")
+    print("Download mappa ...")
     url = "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
     query = f'[out:json][timeout:500];(way["highway"]({BBOX_NAPOLI});node(w););out body;'
 
@@ -14,10 +14,10 @@ def scarica_grafo():
         resp.raise_for_status()
         dati = resp.json()
     except Exception as e:
-        print(f"❌ Errore API: {e}")
+        print(f"Errore API: {e}")
         return None
 
-    print(f"🏗️ Costruzione Grafo NetworkX...")
+    print(f"Costruzione Grafo NetworkX...")
     G = nx.Graph()
     nodes_temp = {}
 
@@ -36,7 +36,7 @@ def scarica_grafo():
                                       nodes_temp[v][0], nodes_temp[v][1])
                     G.add_edge(u, v, weight=dist)
 
-    print(f"✅ Grafo pronto! {G.number_of_nodes()} nodi.")
+    print(f"Grafo pronto! {G.number_of_nodes()} nodi.")
     return G
 
 

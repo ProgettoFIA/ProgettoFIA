@@ -9,7 +9,7 @@ from utils import converti_latlon_to_mercator
 
 
 def visualizza_simulazioni_personalizzate(G, risultati):
-    print("\n🎨 Generazione Mappe Tattiche Personalizzate...")
+    print("\nGenerazione Mappe Tattiche Personalizzate...")
 
     pos = nx.get_node_attributes(G, 'pos')
     colors = ['r', 'b', 'g', 'c', 'm']
@@ -67,7 +67,7 @@ def visualizza_simulazioni_personalizzate(G, risultati):
         try:
             ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
         except Exception as e:
-            print(f"⚠️ Errore scaricamento sfondo: {e}")
+            print(f"Errore scaricamento sfondo: {e}")
 
         ax.set_axis_off()
         plt.title(f"PIANO DI FUGA PERSONALIZZATO\nNucleo: {famiglia.nome} ({famiglia.descrizione})", fontsize=14,
