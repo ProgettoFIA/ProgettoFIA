@@ -77,7 +77,7 @@ def a_star_search_personalizzato(G: nx.Graph,
 
         # Se il nodo corrente è il nodo target, restituisce il percorso
         if current == target:
-            return ricostruisci_percorso(came_from, current)
+            return ricostruisci_percorso(came_from, current), nodi_esplorati
 
         # Aggiungi il nodo corrente all'insieme dei chiusi
         closed_set.add(current)
@@ -107,6 +107,41 @@ def a_star_search_personalizzato(G: nx.Graph,
 
     raise nx.NetworkXNoPath(f"Nessun percorso trovato tra {source} e {target}")
 
+# GREEDY BEST-FIRST SEARCH
+def greedy_best_first_search(G, source, target, tipo_euristica):
+    funzione_dist = get_funzione_euristica(tipo_euristica)
+    def euristica(u, v):
+        return funzione_dist(G.nodes[u]['pos'], G.nodes[v]['pos'])
+
+    closed_set = set()
+    came_from = {}
+    
+    open_set = [(euristica(source, target), source)]
+    open_set_nodes = {source}
+    nodi_esplorati = 0
+
+    while open_set:
+        current_h, current = heapq.heappop(open_set)
+        open_set_nodes.remove(current)
+        nodi_esplorati += 1
+
+        if current == target:
+            return ricostruisci_percorso(came_from, current), nodi_esplorati
+
+        closed_set.add(current)
+
+        for neighbor in G.neighbors(current):
+            if neighbor in closed_set or neighbor in open_set_nodes: 
+                continue
+            
+            came_from[neighbor] = current
+            heapq.heappush(open_set, (euristica(neighbor, target), neighbor))
+            open_set_nodes.add(neighbor)
+
+    raise nx.NetworkXNoPath(f"Nessun percorso trovato tra {source} e {target}")
+
+# DIJKSTRA DA IMPLEMENTARE
+
 #Ricostruisce il percorso dalla fonte al nodo corrente
 def ricostruisci_percorso(came_from: Dict[str, Optional[str]], current: str) -> List[str]:
 
@@ -123,6 +158,7 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
     miglior_rifugio = None
     miglior_percorso = []
     min_tempo = float('inf')
+    nodi_esplorati_totali = 0 #Contatore metriche
 
     #Scelta dell'euristica
     if algoritmo == "A*":
@@ -130,37 +166,25 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
     else:
         print(f"\nAnalisi per {famiglia.nome} ({famiglia.descrizione}) con algoritmo {algoritmo.upper()}...")
 
-    #Tempo di inizio
     start_algoritmo = time.time()
-
     for rifugio in lista_rifugi:
         nodo_end = rifugio.nodo_grafo
         try:
-            #scegliamo l'algoritmo di ricerca
-            if algoritmo == "A*":
-                #Usa la nostra implementazione personalizzata di A* con l'euristica scelta
-                percorso_temp = a_star_search_personalizzato(
-                    G,
-                    source=nodo_start,
-                    target=nodo_end,
-                    tipo_euristica=tipo_euristica,
-                    weight='weight'
-                )
-            #todo: implementare dijkstra in maniera personalizzata
-            elif algoritmo == "dijkstra":
-                percorso_temp = nx.dijkstra_path(
-                    G,
-                    source=nodo_start,
-                    target=nodo_end,
-                    weight='weight'
-                )
+            # SELETTORE ALGORITMI
+            if algoritmo.upper() == "A*":
+                percorso_temp, nodi = a_star_search_personalizzato(G, nodo_start, nodo_end, tipo_euristica)
+            elif algoritmo.upper() == "GREEDY":
+                percorso_temp, nodi = greedy_best_first_search(G, nodo_start, nodo_end, tipo_euristica)
+            #elif algoritmo.upper() == "DIJKSTRA":
+            #percorso_temp, nodi = dijkstra_personalizzato(G, nodo_start, nodo_end)
             else:
-                raise ValueError("Algoritmo non supportato")
-
+                raise ValueError(f"Algoritmo {algoritmo} non supportato")
+            
+            nodi_esplorati_totali += nodi
             path_len = nx.path_weight(G, percorso_temp, weight='weight')
             tempo_minuti = (path_len / famiglia.speed_ms) / 60
 
-            print(f"   -> Verso {rifugio.nome}: {path_len / 1000:.1f} km ({tempo_minuti:.0f} min)")
+            print(f"   -> Verso {rifugio.nome}: {path_len / 1000:.1f} km ({tempo_minuti:.0f} min) - Nodi esplorati: {nodi}")
 
             if tempo_minuti < min_tempo:
                 min_tempo = tempo_minuti
@@ -171,6 +195,5 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
             print(f"   -> {rifugio.nome}: NON RAGGIUNGIBILE")
 
     tempo_esecuzione = time.time() - start_algoritmo
-
-    print(f"Algoritmo {algoritmo.upper()} completato in {tempo_esecuzione:.4f} secondi")
-    return miglior_rifugio, miglior_percorso, min_tempo, tempo_esecuzione
+    print(f"Completato in {tempo_esecuzione:.4f} sec. Nodi esplorati totali: {nodi_esplorati_totali}")
+    return miglior_rifugio, miglior_percorso, min_tempo, tempo_esecuzione, nodi_esplorati_totali

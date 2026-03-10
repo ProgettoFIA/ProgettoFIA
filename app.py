@@ -60,9 +60,10 @@ def calcola_percorso(req: CalcoloRequest):
         rif = PuntoSicuro(r.nome, r.lat, r.lon)
         rif.nodo_grafo = get_nearest_node(grafo_globale, rif.lat, rif.lon)
         rifugi_obj.append(rif)
-    rif_migliore, percorso, tempo, exec_time = scegli_rifugio_migliore(
+    rif_migliore, percorso, tempo, exec_time, nodi_esplorati = scegli_rifugio_migliore(
         grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo
     )
+    
     if rif_migliore is None:
         return {"status": "error", "message": "Nessun percorso trovato per la famiglia."}
     return {
@@ -71,5 +72,6 @@ def calcola_percorso(req: CalcoloRequest):
         "rifugio_assegnato": rif_migliore.nome,
         "tempo_stimato_minuti": round(tempo, 2),
         "tempo_esecuzione_ai_sec": round(exec_time, 4),
+        "nodi_esplorati": nodi_esplorati,  #NUOVA METRICA AGGIUNTA
         "percorso_nodi": percorso
     }
