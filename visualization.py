@@ -83,7 +83,7 @@ def visualizza_simulazioni_personalizzate(G, risultati):
             print(f"Errore scaricamento sfondo: {e}")
 
         ax.set_axis_off()
-        plt.title(f"PIANO DI FUGA PERSONALIZZATO\nNucleo: {famiglia.nome} ({famiglia.descrizione})", fontsize=14,fontweight='bold')
+        plt.title(f"PIANO DI FUGA PERSONALIZZATO\nNucleo: {famiglia.nome} ", fontsize=14,fontweight='bold')
 
         #Legenda per gli algoritmi
         astar_line=mlines.Line2D([],[], color='blue', linewidth=4, label= 'Algoritmo A*')

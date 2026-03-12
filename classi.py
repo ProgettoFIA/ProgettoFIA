@@ -1,28 +1,37 @@
-from config import VELOCITA_AUTO, VELOCITA_PIEDI, VELOCITA_FRAGILI
+from config import VELOCITA_AUTO
 
 
 class NucleoFamiliare:
-    def __init__(self, nome, lat, lon, in_auto=False, con_fragili=False):
+    def __init__(self, nome, lat, lon, con_fragili=False):
         self.nome = nome
         self.lat = lat
         self.lon = lon
-        self.in_auto = in_auto
         self.con_fragili = con_fragili
 
-        if self.in_auto:
-            self.speed_ms = VELOCITA_AUTO / 3.6
-            self.descrizione = "[AUTO] Veicolo"
-        elif self.con_fragili:
-            self.speed_ms = VELOCITA_FRAGILI / 3.6
-            self.descrizione = "[LENTO] A Piedi (Anziani)"
-        else:
-            self.speed_ms = VELOCITA_PIEDI / 3.6
-            self.descrizione = "[VELOCE] A Piedi"
+        #convertire velocità da km/h a m/s
+        self.speed_ms = VELOCITA_AUTO / 3.6
+
+
 
 
 class PuntoSicuro:
-    def __init__(self, nome, lat, lon):
+    def __init__(self, nome, lat, lon, capacita_max=10):
         self.nome = nome
         self.lat = lat
         self.lon = lon
         self.nodo_grafo = None
+
+
+        self.capacita_max = capacita_max
+        self.famiglie_assegnate = 0
+
+    def isPieno(self):
+        return self.famiglie_assegnate >= self.capacita_max
+
+    def aggiungiFamiglia(self):
+        if not self.isPieno():
+            self.famiglie_assegnate += 1
+            if self.isPieno():
+                print("ATTENZIONE: Il Punto Sicuro '{self.nome}' si è totalmente riempito!")
+                return True
+            return False

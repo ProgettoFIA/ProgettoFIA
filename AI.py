@@ -212,9 +212,9 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
 
     # Scelta dell'euristica
     if algoritmo == "A*":
-        print(f"\nAnalisi per {famiglia.nome} ({famiglia.descrizione}) con euristica {tipo_euristica.upper()}...")
+        print(f"\nAnalisi per {famiglia.nome}  con euristica {tipo_euristica.upper()}...")
     else:
-        print(f"\nAnalisi per {famiglia.nome} ({famiglia.descrizione}) con algoritmo {algoritmo.upper()}...")
+        print(f"\nAnalisi per {famiglia.nome}  con algoritmo {algoritmo.upper()}...")
 
     start_algoritmo = time.time()
     for rifugio in lista_rifugi:
