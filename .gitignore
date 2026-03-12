@@ -9,6 +9,8 @@ __pycache__/
 *.pyo
 *.pyd
 
+.idea
+
 # File di sistema operativo
 .DS_Store
 Thumbs.db
