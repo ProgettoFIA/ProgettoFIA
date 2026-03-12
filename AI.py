@@ -197,3 +197,75 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
     tempo_esecuzione = time.time() - start_algoritmo
     print(f"Completato in {tempo_esecuzione:.4f} sec. Nodi esplorati totali: {nodi_esplorati_totali}")
     return miglior_rifugio, miglior_percorso, min_tempo, tempo_esecuzione, nodi_esplorati_totali
+
+def esperimento_euristiche_astar(G,famiglie,rifugi,euristiche):
+    tempi_percorrenza={eur:[]for eur in euristiche}
+    tempi_esecuzione={eur: [] for eur in euristiche}
+    for eur in euristiche:
+        print(f"\n===== Test euristica: {eur.upper()} =====")
+        for fam in famiglie:
+            nodo_start= get_nearest_node(G,fam.lat, fam.lon)
+            for rif in rifugi:
+                nodo_end=rif.nodo_grafo
+                if nodo_start==nodo_end:
+                    print(f"{fam.nome} -> {rif.nome}: STESSO NODO (escluso dalle medie)")
+
+                    continue
+                try:
+                    start_time=time.time()
+                    path, nodi= a_star_search_personalizzato(
+                    G,
+                    nodo_start,
+                    nodo_end,
+                    eur
+                    )
+                    exec_time=time.time() - start_time
+                    path_len=nx.path_weight(G,path,weight='weight')
+                    tempo_minuti=(path_len / fam.speed_ms)/60
+
+                    if tempo_minuti<0.01:
+                        print(f"{fam.nome} -> {rif.nome}: TEMPO TROPPO BASSO (escluso)")
+                        continue
+
+                    tempi_percorrenza[eur].append(tempo_minuti)
+                    tempi_esecuzione[eur].append(exec_time)
+
+                    print(f"{fam.nome} -> {rif.nome}: {tempo_minuti:.2f} min (algoritmo: {exec_time:.4f}s)")
+                except nx.NetworkXNoPath:
+                    print(f"{fam.nome} -> {rif.nome}: NON RAGGIUNGIBILE")
+    for eur in euristiche:
+        print(f"   [DEBUG] {eur}: {len(tempi_percorrenza[eur])} percorsi validi")
+    return tempi_percorrenza, tempi_esecuzione
+
+
+def esperimento_greedy_euristiche(G,famiglie,rifugi,euristiche):
+    tempi_percorrenza = {eur: [] for eur in euristiche}
+    tempi_esecuzione = {eur: [] for eur in euristiche}
+
+    for eur in euristiche:
+        print(f"\n===== [GREEDY] Test euristica: {eur.upper()} =====")
+        for fam in famiglie:
+            nodo_start=get_nearest_node(G,fam.lat,fam.lon)
+            for rif in rifugi:
+                nodo_end=rif.nodo_grafo
+                if nodo_start == nodo_end:
+                    print(f"   {fam.nome} -> {rif.nome}: STESSO NODO (escluso)")
+                    continue
+                try:
+                    start_time=time.time()
+                    path,nodi=greedy_best_first_search(G,nodo_start,nodo_end,eur)
+                    exec_time=time.time() - start_time
+                    path_len=nx.path_weight(G,path,weight='weight')
+                    tempo_minuti=(path_len/fam.speed_ms)/60
+                    if tempo_minuti < 0.01:
+                        print(f"   {fam.nome} -> {rif.nome}: TEMPO TROPPO BASSO (escluso)")
+                        continue
+                    tempi_percorrenza[eur].append(tempo_minuti)
+                    tempi_esecuzione[eur].append(exec_time)
+                    print(f"   {fam.nome} -> {rif.nome}: {tempo_minuti:.2f} min")
+                except nx.NetworkXNoPath:
+                    print(f"   {fam.nome} -> {rif.nome}: NON RAGGIUNGIBILE")
+    for eur in euristiche:
+        print(f"   [DEBUG] {eur}: {len(tempi_percorrenza[eur])} percorsi validi")
+    return tempi_percorrenza, tempi_esecuzione
+
