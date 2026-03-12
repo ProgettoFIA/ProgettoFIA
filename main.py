@@ -15,7 +15,8 @@ if __name__ == "__main__":
             PuntoSicuro("Porto di Pozzuoli", 40.8214, 14.1213),
             PuntoSicuro("Stadio Maradona", 40.8279, 14.1930),
             PuntoSicuro("Stadio di Quarto", 40.8800, 14.1300),
-            PuntoSicuro("Ippodromo Agnano", 40.8260, 14.1450)
+            PuntoSicuro("Ippodromo Agnano", 40.8260, 14.1450),
+            PuntoSicuro("Aereoporto di Capodichino", 40.9570, 14.4920)
         ]
 
         print("Indicizzazione Rifugi...")
@@ -33,12 +34,15 @@ if __name__ == "__main__":
         risultati_finali = []
         for fam in popolazione:
             #per l'algoritmo A*
-            rif_a, path_a, tempo_a, exec_a=scegli_rifugio_migliore(grafo, fam, rifugi, algoritmo="A*",tipo_euristica="euclidea")
-            #per l'algoritmo Dijkstra
-            rif_d,path_d,tempo_d,exec_d=scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="dijkstra")
+            rif_a, path_a, tempo_a, exec_a, nodi_a = scegli_rifugio_migliore(grafo, fam, rifugi, algoritmo="A*",tipo_euristica="euclidea")
+            #per l'algoritmo CU
+            rif_d,path_d,tempo_d,exec_d, nodo_d =scegli_rifugio_migliore(grafo,fam,rifugi,algoritmo="CU")
+            #per l'algortmo GREEDY
+            rif_g, path_g, tempo_g, exec_g, nodo_g = scegli_rifugio_migliore(grafo, fam, rifugi, algoritmo="GREEDY")
             #facciamo un confronto tra i due
             print(f"A* -> tempo dell'algoritmo: {exec_a:.4f}s")
-            print(f"Dijkstra -> tempo dell'algoritmo: {exec_d:.4f}s")
+            print(f"GREEDY -> tempo dell'algoritmo: {exec_g:.4f}s")
+            print(f"CU -> tempo dell'algoritmo: {exec_d:.4f}s")
 
             if rif_a:
                 print(f"✅ ASSEGNATO: {rif_a.nome} in {tempo_a:.0f} minuti.")

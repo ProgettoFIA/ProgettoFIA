@@ -11,19 +11,25 @@ EURISTICA_EUCLIDEA = "euclidea"
 EURISTICA_MANHATTAN = "manhattan"
 EURISTICA_CHEBYSHEV = "chebyshev"
 
-#Calcola la distanza euclidea tra due punti
-def calcola_distanza_euclidea(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
-    return math.sqrt((pos2[0] - pos1[0])**2 + (pos2[1] - pos1[1])**2)
 
-#Calcola la distanza di Manhattan tra due punti
+# Calcola la distanza euclidea tra due punti
+# Aggiunta di *100.000 per far rimanere l euristica ammissibile -> "Ogni grado che la linea del raggio della Terra si estende corrisponde a 111.139 metri"
+# Moltiplicato il risultato della distanza euclidea per 100k per questo motivo
+def calcola_distanza_euclidea(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
+    return math.sqrt((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) * 100000
+
+
+# Calcola la distanza di Manhattan tra due punti
 def calcola_distanza_manhattan(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
     return abs(pos2[0] - pos1[0]) + abs(pos2[1] - pos1[1])
 
-#Calcola la distanza di Chebyshev tra due punti
+
+# Calcola la distanza di Chebyshev tra due punti
 def calcola_distanza_chebyshev(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
     return max(abs(pos2[0] - pos1[0]), abs(pos2[1] - pos1[1]))
 
-#Restituisce la funzione euristica corrispondente al tipo scelto
+
+# Restituisce la funzione euristica corrispondente al tipo scelto
 def get_funzione_euristica(tipo_euristica: str) -> Callable[[Tuple[float, float], Tuple[float, float]], float]:
     if tipo_euristica == EURISTICA_EUCLIDEA:
         return calcola_distanza_euclidea
@@ -34,17 +40,17 @@ def get_funzione_euristica(tipo_euristica: str) -> Callable[[Tuple[float, float]
     else:
         raise ValueError(f"Tipo di euristica non supportato: {tipo_euristica}")
 
-#Implementazione personalizzata dell'algoritmo A* con diverse euristiche che restituisce una lista che contiene il percorso ottimale
+
+# Implementazione personalizzata dell'algoritmo A* con diverse euristiche che restituisce una lista che contiene il percorso ottimale
 def a_star_search_personalizzato(G: nx.Graph,
                                  source: str,
                                  target: str,
                                  tipo_euristica: str = EURISTICA_EUCLIDEA,
                                  weight: str = 'weight') -> List[str]:
-
     # Ottieni la funzione euristica selezionata
     funzione_dist = get_funzione_euristica(tipo_euristica)
 
-    #Calcola la distanza tra due nodi usando l'euristica scelta
+    # Calcola la distanza tra due nodi usando l'euristica scelta
     def euristica(u: str, v: str) -> float:
 
         pos_u = G.nodes[u]['pos']
@@ -107,15 +113,17 @@ def a_star_search_personalizzato(G: nx.Graph,
 
     raise nx.NetworkXNoPath(f"Nessun percorso trovato tra {source} e {target}")
 
+
 # GREEDY BEST-FIRST SEARCH
 def greedy_best_first_search(G, source, target, tipo_euristica):
     funzione_dist = get_funzione_euristica(tipo_euristica)
+
     def euristica(u, v):
         return funzione_dist(G.nodes[u]['pos'], G.nodes[v]['pos'])
 
     closed_set = set()
     came_from = {}
-    
+
     open_set = [(euristica(source, target), source)]
     open_set_nodes = {source}
     nodi_esplorati = 0
@@ -131,20 +139,62 @@ def greedy_best_first_search(G, source, target, tipo_euristica):
         closed_set.add(current)
 
         for neighbor in G.neighbors(current):
-            if neighbor in closed_set or neighbor in open_set_nodes: 
+            if neighbor in closed_set or neighbor in open_set_nodes:
                 continue
-            
+
             came_from[neighbor] = current
             heapq.heappush(open_set, (euristica(neighbor, target), neighbor))
             open_set_nodes.add(neighbor)
 
     raise nx.NetworkXNoPath(f"Nessun percorso trovato tra {source} e {target}")
 
-# DIJKSTRA DA IMPLEMENTARE
 
-#Ricostruisce il percorso dalla fonte al nodo corrente
+# RICERCA IN AMPIEZZA CON COSTO UNIFORME (CU)
+def ricercaInAmpiezzaCU(G, sorgente, puntoSicuro):
+    nodiEsplorati = 0
+
+    # Dizionari
+    cameFrom = {sorgente: None}
+    gScore = {sorgente: 0}
+
+    # Lista vuota
+    frontiera = []
+    esplorati = set()
+
+    heapq.heappush(frontiera, (0, sorgente))
+
+    while frontiera:
+        # Estrazione della coppia nodo + costo minore
+        costoCorrente, nodoCorrente = heapq.heappop(frontiera)
+
+        nodiEsplorati += 1
+
+        # Se è il punto sicuro abbiamo finito e ci facciamo restituire il percorso
+        if nodoCorrente == puntoSicuro:
+            percorso = ricostruisci_percorso(cameFrom, nodoCorrente)
+            return percorso, nodiEsplorati
+
+        # Se non è il puntoSicuro, si aggiunge all'insieme dei nodi esplorati
+        esplorati.add(nodoCorrente)
+
+        # Espandiamo il nodoCorrente appena inserito nell insieme
+        for figlio in G.neighbors(nodoCorrente):
+            costoPasso = G[nodoCorrente][figlio]['weight']
+            costoFiglio = costoCorrente + costoPasso
+
+            # Se non è negli esplorati e non è nella frontiera (1) oppure è una strada più breve (2),
+            # inseriamo quel nodo nella coda a priorità
+            if figlio not in gScore or costoFiglio < gScore[figlio]:
+                gScore[figlio] = costoFiglio
+                cameFrom[figlio] = nodoCorrente
+                heapq.heappush(frontiera, (costoFiglio, figlio))
+
+    # Se non si trova una percorso, eccezione
+    raise nx.NetworkXNoPath(f"Nessun percorso trovato tra {sorgente} e {puntoSicuro}")
+
+
+# Ricostruisce il percorso dalla fonte al nodo corrente
 def ricostruisci_percorso(came_from: Dict[str, Optional[str]], current: str) -> List[str]:
-
     total_path = [current]
     while current in came_from:
         current = came_from[current]
@@ -153,14 +203,15 @@ def ricostruisci_percorso(came_from: Dict[str, Optional[str]], current: str) -> 
     total_path.reverse()
     return total_path
 
+
 def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euristica="euclidea"):
     nodo_start = get_nearest_node(G, famiglia.lat, famiglia.lon)
     miglior_rifugio = None
     miglior_percorso = []
     min_tempo = float('inf')
-    nodi_esplorati_totali = 0 #Contatore metriche
+    nodi_esplorati_totali = 0  # Contatore metriche
 
-    #Scelta dell'euristica
+    # Scelta dell'euristica
     if algoritmo == "A*":
         print(f"\nAnalisi per {famiglia.nome} ({famiglia.descrizione}) con euristica {tipo_euristica.upper()}...")
     else:
@@ -175,16 +226,17 @@ def scegli_rifugio_migliore(G, famiglia, lista_rifugi, algoritmo="A*", tipo_euri
                 percorso_temp, nodi = a_star_search_personalizzato(G, nodo_start, nodo_end, tipo_euristica)
             elif algoritmo.upper() == "GREEDY":
                 percorso_temp, nodi = greedy_best_first_search(G, nodo_start, nodo_end, tipo_euristica)
-            #elif algoritmo.upper() == "DIJKSTRA":
-            #percorso_temp, nodi = dijkstra_personalizzato(G, nodo_start, nodo_end)
+            elif algoritmo.upper() == "CU":
+                percorso_temp, nodi = ricercaInAmpiezzaCU(G, nodo_start, nodo_end)
             else:
                 raise ValueError(f"Algoritmo {algoritmo} non supportato")
-            
+
             nodi_esplorati_totali += nodi
             path_len = nx.path_weight(G, percorso_temp, weight='weight')
             tempo_minuti = (path_len / famiglia.speed_ms) / 60
 
-            print(f"   -> Verso {rifugio.nome}: {path_len / 1000:.1f} km ({tempo_minuti:.0f} min) - Nodi esplorati: {nodi}")
+            print(
+                f"   -> Verso {rifugio.nome}: {path_len / 1000:.1f} km ({tempo_minuti:.0f} min) - Nodi esplorati: {nodi}")
 
             if tempo_minuti < min_tempo:
                 min_tempo = tempo_minuti
