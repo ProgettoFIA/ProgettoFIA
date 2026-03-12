@@ -11,7 +11,6 @@ EURISTICA_EUCLIDEA = "euclidea"
 EURISTICA_MANHATTAN = "manhattan"
 EURISTICA_CHEBYSHEV = "chebyshev"
 
-
 # Calcola la distanza euclidea tra due punti
 # Aggiunta di *100.000 per far rimanere l euristica ammissibile -> "Ogni grado che la linea del raggio della Terra si estende corrisponde a 111.139 metri"
 # Moltiplicato il risultato della distanza euclidea per 100k per questo motivo
@@ -46,13 +45,13 @@ def a_star_search_personalizzato(G: nx.Graph,
                                  source: str,
                                  target: str,
                                  tipo_euristica: str = EURISTICA_EUCLIDEA,
-                                 weight: str = 'weight') -> List[str]:
+                                 weight: str = 'weight') -> Tuple[List[str],int]:
+
     # Ottieni la funzione euristica selezionata
     funzione_dist = get_funzione_euristica(tipo_euristica)
 
     # Calcola la distanza tra due nodi usando l'euristica scelta
     def euristica(u: str, v: str) -> float:
-
         pos_u = G.nodes[u]['pos']
         pos_v = G.nodes[v]['pos']
         return funzione_dist(pos_u, pos_v)
@@ -115,7 +114,7 @@ def a_star_search_personalizzato(G: nx.Graph,
 
 
 # GREEDY BEST-FIRST SEARCH
-def greedy_best_first_search(G, source, target, tipo_euristica):
+def greedy_best_first_search(G, source, target, tipo_euristica)->Tuple[List[str], int]:
     funzione_dist = get_funzione_euristica(tipo_euristica)
 
     def euristica(u, v):
@@ -320,4 +319,6 @@ def esperimento_greedy_euristiche(G,famiglie,rifugi,euristiche):
     for eur in euristiche:
         print(f"   [DEBUG] {eur}: {len(tempi_percorrenza[eur])} percorsi validi")
     return tempi_percorrenza, tempi_esecuzione
+
+#TODO: def esperimento_dijkstra
 
