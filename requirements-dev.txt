@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+networkx
+requests
+numpy
+matplotlib
+contextily
+pydantic
+gunicorn
+streamlit
+folium
+streamlit-folium
