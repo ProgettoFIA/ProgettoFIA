@@ -55,8 +55,14 @@ if calcola_btn:
 
         try:
             response = requests.post(API_URL, json=payload)
-            data = response.json()
+            
+            if response.status_code != 200:
+                st.error(f"Errore dal server Azure (Codice {response.status_code})")
+                st.code(response.text)
+                st.stop() # Fermo tutto per non far crashare Streamlit
 
+            data = response.json()
+            
             if data.get("status") == "success":
                 st.session_state.dati_api = data
                 st.session_state.payload_usato = payload
