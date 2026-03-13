@@ -49,7 +49,7 @@ if calcola_btn:
                 {"nome": "Stadio Diego Armando Maradona", "lat": 40.8279, "lon": 14.1930},
                 {"nome": "Bosco di Capodimonte", "lat": 40.8672, "lon": 14.2504}
             ],
-            "algoritmo": algoritmo,
+            "algoritmo": "CU" if algoritmo == "Costo Uniforme" else algoritmo,
             "euristica": euristica_scelta.lower()
         }
 
@@ -104,8 +104,7 @@ if st.session_state.dati_api:
 
     folium.PolyLine(
         coords,
-        color="blue" if payload["algoritmo"] == "A*" else ("red" if payload["algoritmo"] == "Dijkstra" else "orange"),
-        weight=5,
+color="blue" if payload["algoritmo"] == "A*" else ("red" if payload["algoritmo"] in ["Costo Uniforme", "CU"] else "orange"),        weight=5,
         opacity=0.8
     ).add_to(m)
 

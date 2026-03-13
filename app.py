@@ -60,7 +60,7 @@ def calcola_percorso(req: CalcoloRequest):
         rif = PuntoSicuro(r.nome, r.lat, r.lon)
         rif.nodo_grafo = get_nearest_node(grafo_globale, rif.lat, rif.lon)
         rifugi_obj.append(rif)
-    rif_migliore, percorso, tempo, exec_time, nodi_esplorati = scegli_rifugio_migliore(
+    rif_migliore, percorso, tempo, exec_time, nodi_esplorati, tempo_miglior_rifugio = scegli_rifugio_migliore(
         grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo
     )
     
