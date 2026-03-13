@@ -1,7 +1,9 @@
 fastapi
 uvicorn
 networkx
-requests
 numpy
 pydantic
-gunicorn
+requests
+streamlit
+folium
+streamlit-folium
