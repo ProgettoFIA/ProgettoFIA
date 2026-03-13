@@ -39,6 +39,20 @@ def scarica_grafo():
     print(f"Grafo pronto! {G.number_of_nodes()} nodi.")
     return G
 
+def zoneRosse(G,crater_lat=40.8224, crater_lon=14.4289, raggio_km=4.5):
+    """Identifica i nodi del grafo che si trovano all'interno del raggio del Vesuvio e li esclude."""
+    print(f"\n🌋 ATTIVAZIONE ZONA ROSSA: Chiusura strade entro {raggio_km}km dal cratere...")
+    nodi_zone_rosse = []
+    for n, data in G.nodes(data=True):
+        lat, lon = data['pos']
+        distanza_km = dist_metri(lat, lon, crater_lat, crater_lon) / 1000
+        if distanza_km <= raggio_km:
+            nodi_zone_rosse.append(n)
+    G.remove_nodes_from(nodi_zone_rosse)
+    print(f"🛑 Rimosse {len(nodi_zone_rosse)} intersezioni pericolose dal grafo!")
+
+    return G
+
 
 def get_nearest_node(G, lat, lon):
     """Trova il nodo del grafo più vicino a una coordinata GPS."""

@@ -26,14 +26,15 @@ def visualizza_simulazioni_personalizzate(G, risultati):
             mx, my = converti_latlon_to_mercator(lat_n, lon_n)
             mercator_astar.append((mx, my))
 
+        px_a = [m[0] for m in mercator_astar]
+        py_a=  [m[1] for m in mercator_astar]
+
         #percorso CU
         mercatorCu = []
         for n in percorsoCu:
             lat_n, lon_n = pos[n]
             mx, my = converti_latlon_to_mercator(lat_n, lon_n)
             mercatorCu.append((mx, my))
-        px_a = [m[0] for m in mercator_astar]
-        py_a = [m[1] for m in mercator_astar]
 
         px_d = [m[0] for m in mercatorCu]
         py_d=  [m[1] for m in mercatorCu]
@@ -44,6 +45,7 @@ def visualizza_simulazioni_personalizzate(G, risultati):
             lat_n, lon_n = pos[n]
             mx, my = converti_latlon_to_mercator(lat_n, lon_n)
             mercatorGreedy.append((mx, my))
+
         px_g = [m[0] for m in mercatorGreedy]
         py_g=  [m[1] for m in mercatorGreedy]
 
