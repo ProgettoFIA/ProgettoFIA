@@ -11,7 +11,19 @@ API_URL = "https://eruplan-fia-api-a4c6dkd0hvetgse9.italynorth-01.azurewebsites.
 
 with st.sidebar:
     st.header("Parametri di Ricerca")
-    algoritmo = st.selectbox("Scegli l'algoritmo", ["A*", "Greedy", "Dijkstra"])
+    algoritmo = st.selectbox("Scegli l'algoritmo", ["A*", "Greedy", "Costo Uniforme"])
+    
+    # NUOVO BLOCCO EURISTICA
+    # Mostriamo il selettore SOLO per gli algoritmi informati
+    if algoritmo in ["A*", "Greedy"]:
+        euristica_scelta = st.selectbox(
+            "Scegli l'euristica", 
+            ["Euclidea", "Manhattan", "Chebyshev"],
+            help="Determina come l'algoritmo stima la distanza rimanente verso il rifugio."
+        )
+    else:
+        euristica_scelta = "euclidea" 
+        st.info("Il Costo Uniforme non usa euristiche (Ricerca Non Informata).")
     mezzo = st.radio("Mezzo di trasporto", ["A Piedi", "In Auto"])
     fragili = st.checkbox("Presenza di soggetti fragili")
     
@@ -37,7 +49,8 @@ if calcola_btn:
                 {"nome": "Stadio Diego Armando Maradona", "lat": 40.8279, "lon": 14.1930},
                 {"nome": "Bosco di Capodimonte", "lat": 40.8672, "lon": 14.2504}
             ],
-            "algoritmo": algoritmo
+            "algoritmo": algoritmo,
+            "euristica": euristica_scelta.lower()
         }
 
         try:
