@@ -4,6 +4,7 @@ from streamlit_folium import st_folium
 import requests
 
 st.set_page_config(page_title="ERUPLAN FIA - Dashboard", layout="wide")
+st.image("eruplanlogo.jpg", use_column_width=True)
 st.title("ERUPLAN - Piano di Evacuazione Intelligente")
 st.markdown("Confronto algoritmi di ricerca per l'assegnazione dei rifugi sicuri.")
 
@@ -38,16 +39,17 @@ if calcola_btn:
     with st.spinner(f"Calcolo in corso con {algoritmo}..."):
         payload = {
             "famiglia": {
-                "nome": "Famiglia Esposito",
-                "lat": 40.8431,
-                "lon": 14.2483,
+                "nome": "Fam. Esposito (Portici)",
+                "lat": 40.8160,
+                "lon": 14.3400,
                 "in_auto": True if mezzo == "In Auto" else False,
                 "con_fragili": fragili
             },
             "rifugi": [
-                {"nome": "Piazza del Plebiscito", "lat": 40.8359, "lon": 14.2487},
-                {"nome": "Stadio Diego Armando Maradona", "lat": 40.8279, "lon": 14.1930},
-                {"nome": "Bosco di Capodimonte", "lat": 40.8672, "lon": 14.2504}
+                {"nome": "HUB Monterusciello (Pozzuoli)", "lat": 40.8650, "lon": 14.0630},
+                {"nome": "Porto Turistico (Bacoli)", "lat": 40.7950, "lon": 14.0800},
+                {"nome": "Stadio Romeo Menti (Castellammare)", "lat": 40.7050, "lon": 14.4850},
+                {"nome": "Campo Sportivo (Sorrento)", "lat": 40.6280, "lon": 14.3820}
             ],
             "algoritmo": "CU" if algoritmo == "Costo Uniforme" else algoritmo,
             "euristica": euristica_scelta.lower()
@@ -86,7 +88,7 @@ if st.session_state.dati_api:
 
     st.subheader("🗺️ Mappa del Percorso")
     
-    m = folium.Map(location=[payload["famiglia"]["lat"], payload["famiglia"]["lon"]], zoom_start=13)
+    m = folium.Map(location=[payload["famiglia"]["lat"], payload["famiglia"]["lon"]], zoom_start=11)
     
     folium.Marker(
         [payload["famiglia"]["lat"], payload["famiglia"]["lon"]],
