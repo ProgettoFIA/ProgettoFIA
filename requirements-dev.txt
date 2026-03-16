@@ -1,9 +1,12 @@
 fastapi
 uvicorn
 networkx
-numpy
-pydantic
 requests
+numpy
+matplotlib
+contextily
+pydantic
+gunicorn
 streamlit
 folium
 streamlit-folium

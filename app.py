@@ -46,22 +46,22 @@ class CalcoloRequest(BaseModel):
     famiglia: FamigliaData
     rifugi: List[RifugioData]
     algoritmo: str = "A*"
+    euristica: str = "euclidea"
 
 # Endpoint principale esposto all'Adapter del modulo GPE
 @app.post("/calcola-percorso")
 def calcola_percorso(req: CalcoloRequest):
     global grafo_globale
     if not grafo_globale:
-        raise HTTPException(status_code=500, detail="Grafo non ancora inizializzato")
-    fam = NucleoFamiliare(req.famiglia.nome, req.famiglia.lat, req.famiglia.lon, 
-                          req.famiglia.in_auto, req.famiglia.con_fragili)
+        raise HTTPException(status_code=500, detail="Grafo non ancora inizializzato")        
+    fam = NucleoFamiliare(req.famiglia.nome, req.famiglia.lat, req.famiglia.lon, con_fragili=req.famiglia.con_fragili)
     rifugi_obj = []
     for r in req.rifugi:
         rif = PuntoSicuro(r.nome, r.lat, r.lon)
         rif.nodo_grafo = get_nearest_node(grafo_globale, rif.lat, rif.lon)
-        rifugi_obj.append(rif)
-    rif_migliore, percorso, tempo, exec_time, nodi_esplorati = scegli_rifugio_migliore(
-        grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo
+        rifugi_obj.append(rif)        
+    rif_migliore, percorso, tempo, exec_time, nodi_esplorati, tempo_miglior_rifugio = scegli_rifugio_migliore(
+        grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo, tipo_euristica=req.euristica
     )
     
     if rif_migliore is None:
@@ -76,7 +76,7 @@ def calcola_percorso(req: CalcoloRequest):
         "rifugio_assegnato": rif_migliore.nome,
         "tempo_stimato_minuti": round(tempo, 2),
         "tempo_esecuzione_ai_sec": round(exec_time, 4),
-        "nodi_esplorati": nodi_esplorati, #NUOVA METRICA AGGIUNTA
+        "nodi_esplorati": nodi_esplorati, 
         "percorso_nodi": percorso,
         "percorso_coordinate": coords_percorso
     }
