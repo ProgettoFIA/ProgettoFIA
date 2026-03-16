@@ -32,6 +32,6 @@ class PuntoSicuro:
         if not self.isPieno():
             self.famiglie_assegnate += 1
             if self.isPieno():
-                print("ATTENZIONE: Il Punto Sicuro '{self.nome}' si è totalmente riempito!")
+                print(f"ATTENZIONE: Il Punto Sicuro '{self.nome}' si è totalmente riempito!")
                 return True
             return False

@@ -108,6 +108,7 @@ if __name__ == "__main__":
         print("-"*70)
         print(f"Miglior per tempo percorrenza: {migliore_perc_greedy.upper()} ({medie_percorrenza_greedy[migliore_perc_greedy]:.2f} min)")
         print(f"Migliore per velocità dell'algoritmo: {migliore_exec_greedy.upper()} ({medie_esecuzione_greedy[migliore_exec_greedy]:.4f} s)")
+        
 
 
         # BENCHMARK CU

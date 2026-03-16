@@ -10,22 +10,28 @@ EURISTICA_EUCLIDEA = "euclidea"
 EURISTICA_MANHATTAN = "manhattan"
 EURISTICA_CHEBYSHEV = "chebyshev"
 
-# Calcola la distanza euclidea tra due punti
-# Aggiunta di *100.000 per far rimanere l euristica ammissibile -> "Ogni grado che la linea del raggio della Terra si estende corrisponde a 111.139 metri"
-# Moltiplicato il risultato della distanza euclidea per 100k per questo motivo
+
 def calcola_distanza_euclidea(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
-    return math.sqrt((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) * 100000
+    lat_media = math.radians((pos1[0] + pos2[0]) / 2)
+    dy = (pos2[0] - pos1[0]) * 111139
+    dx = (pos2[1] - pos1[1]) * 111139 * math.cos(lat_media)
+    return math.sqrt(dx * dx + dy * dy)
 
 
-# Calcola la distanza di Manhattan tra due punti
 def calcola_distanza_manhattan(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
-    return abs(pos2[0] - pos1[0]) + abs(pos2[1] - pos1[1])
+
+    lat_media = math.radians((pos1[0] + pos2[0]) / 2)
+    dy = abs(pos2[0] - pos1[0]) * 111139
+    dx = abs(pos2[1] - pos1[1]) * 111139 * math.cos(lat_media)
+    return dx + dy
 
 
-# Calcola la distanza di Chebyshev tra due punti
 def calcola_distanza_chebyshev(pos1: Tuple[float, float], pos2: Tuple[float, float]) -> float:
-    return max(abs(pos2[0] - pos1[0]), abs(pos2[1] - pos1[1]))
 
+    lat_media = math.radians((pos1[0] + pos2[0]) / 2)
+    dy = abs(pos2[0] - pos1[0]) * 111139
+    dx = abs(pos2[1] - pos1[1]) * 111139 * math.cos(lat_media)
+    return max(dx, dy)
 
 # Restituisce la funzione euristica corrispondente al tipo scelto
 def get_funzione_euristica(tipo_euristica: str) -> Callable[[Tuple[float, float], Tuple[float, float]], float]:
@@ -76,7 +82,10 @@ def a_star_search_personalizzato(G: nx.Graph,
     while open_set:
         # Estrai il nodo con f_score minimo
         current_f, current_g, current = heapq.heappop(open_set)
-        open_set_nodes.remove(current)
+
+        if current in closed_set:
+            continue
+
         nodi_esplorati += 1
 
         # Se il nodo corrente è il nodo target, restituisce il percorso
@@ -165,6 +174,9 @@ def ricercaInAmpiezzaCU(G, sorgente, puntoSicuro):
         # Estrazione della coppia nodo + costo minore
         costoCorrente, nodoCorrente = heapq.heappop(frontiera)
 
+        if nodoCorrente in esplorati:
+            continue
+
         nodiEsplorati += 1
 
         # Se è il punto sicuro abbiamo finito e ci facciamo restituire il percorso
@@ -180,7 +192,7 @@ def ricercaInAmpiezzaCU(G, sorgente, puntoSicuro):
             costoPasso = G[nodoCorrente][figlio]['weight']
             costoFiglio = costoCorrente + costoPasso
 
-            # Se non è negli esplorati e non è nella frontiera (1) oppure è una strada più breve (2),
+            # Se il nodo figlio è stato scoperto per la prima volta oppure è una strada più breve,
             # inseriamo quel nodo nella coda a priorità
             if figlio not in gScore or costoFiglio < gScore[figlio]:
                 gScore[figlio] = costoFiglio
