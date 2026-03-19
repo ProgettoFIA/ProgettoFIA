@@ -3,7 +3,7 @@ from network import scarica_grafo, get_nearest_node, zoneRosse
 from classi import NucleoFamiliare, PuntoSicuro
 from AI import scegli_rifugio_migliore, esperimento_euristiche_astar, esperimento_greedy_euristiche, esperimentoCU
 from visualization import visualizza_simulazioni_personalizzate
-import time
+from visualization import visualizza_zona_rossa
 
 if __name__ == "__main__":
     # Scarica Mappa
@@ -172,3 +172,5 @@ if __name__ == "__main__":
 
         # Visualizza le mappe
         visualizza_simulazioni_personalizzate(grafo, risultati_finali)
+
+        visualizza_zona_rossa()  # usa i valori di default

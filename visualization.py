@@ -119,3 +119,26 @@ def visualizza_simulazioni_personalizzate(G, risultati):
         )
         plt.show()
         plt.close(fig)
+
+def visualizza_zona_rossa(cratere_lat=40.8224, cratere_lon=14.4289, raggio_km=4.5):
+    """Mostra solo la zona rossa con zoom"""
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    cx, cy = converti_latlon_to_mercator(cratere_lat, cratere_lon)
+    from matplotlib.patches import Circle
+    cerchio = Circle((cx, cy), raggio_km*1000, color='red', alpha=0.3,
+                     label=f'Zona Rossa {raggio_km}km')
+    ax.add_patch(cerchio)
+    ax.scatter([cx], [cy], c='darkred', s=200, marker='^',
+               edgecolors='black', label='Cratere')
+
+    # Zoom sulla zona
+    margin = raggio_km * 1500
+    ax.set_xlim(cx - raggio_km*1000 - margin, cx + raggio_km*1000 + margin)
+    ax.set_ylim(cy - raggio_km*1000 - margin, cy + raggio_km*1000 + margin)
+
+    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=13)
+    ax.set_axis_off()
+    plt.title("Zona Rossa del Vesuvio", fontsize=14, fontweight='bold')
+    plt.legend()
+    plt.show()

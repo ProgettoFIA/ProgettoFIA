@@ -6,7 +6,7 @@ from utils import dist_metri
 
 def scarica_grafo():
     print("Download mappa ...")
-    url = "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+    url = "https://lz4.overpass-api.de/api/interpreter"
     query = f'[out:json][timeout:500];(way["highway"]({BBOX_NAPOLI});node(w););out body;'
 
     try:
