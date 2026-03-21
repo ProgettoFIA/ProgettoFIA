@@ -20,8 +20,8 @@ with col2:
     st.divider()
 
 #INDIRIZZO API
-API_URL = "http://127.0.0.1:8000/calcola-percorso"
-# API_URL = "https://eruplan-fia-api-a4c6dkd0hvetgse9.italynorth-01.azurewebsites.net/calcola-percorso"
+#API_URL = "http://127.0.0.1:8000/calcola-percorso"
+API_URL = "https://eruplan-fia-api-a4c6dkd0hvetgse9.italynorth-01.azurewebsites.net/calcola-percorso"
 
 #Session State
 if "dati_api" not in st.session_state:
