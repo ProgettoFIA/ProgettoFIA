@@ -10,11 +10,13 @@ from AI import scegli_rifugio_migliore
 
 grafo_globale = None
 
-# NUOVO METODO LIFESPAN
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global grafo_globale
-    file_mappa = "mappa_napoli.pkl"
+    
+    # Uso il percorso assoluto per evitare l'errore FileNotFoundError
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_mappa = os.path.join(current_dir, "mappa_napoli.pkl")
     
     if os.path.exists(file_mappa):
         print(f"Caricamento del grafo dal file locale {file_mappa}...")
@@ -53,13 +55,17 @@ class CalcoloRequest(BaseModel):
 def calcola_percorso(req: CalcoloRequest):
     global grafo_globale
     if not grafo_globale:
-        raise HTTPException(status_code=500, detail="Grafo non ancora inizializzato")        
-    fam = NucleoFamiliare(req.famiglia.nome, req.famiglia.lat, req.famiglia.lon, con_fragili=req.famiglia.con_fragili)
+        raise HTTPException(status_code=500, detail="Grafo non ancora inizializzato")
+    fam = NucleoFamiliare(req.famiglia.nome, req.famiglia.lat, req.famiglia.lon, 
+                          con_fragili=req.famiglia.con_fragili)
+    
     rifugi_obj = []
     for r in req.rifugi:
         rif = PuntoSicuro(r.nome, r.lat, r.lon)
         rif.nodo_grafo = get_nearest_node(grafo_globale, rif.lat, rif.lon)
-        rifugi_obj.append(rif)        
+        rifugi_obj.append(rif)
+        
+    # Chiamata all'IA
     rif_migliore, percorso, tempo, exec_time, nodi_esplorati, tempo_miglior_rifugio = scegli_rifugio_migliore(
         grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo, tipo_euristica=req.euristica
     )
@@ -67,7 +73,7 @@ def calcola_percorso(req: CalcoloRequest):
     if rif_migliore is None:
         return {"status": "error", "message": "Nessun percorso trovato per la famiglia."}
     
-    #Traduce i nodi in coordinate
+    # Traduce i nodi in coordinate
     coords_percorso = [{"lat": grafo_globale.nodes[n]['pos'][0], "lon": grafo_globale.nodes[n]['pos'][1]} for n in percorso]
       
     return {
