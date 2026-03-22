@@ -10,3 +10,5 @@ gunicorn
 streamlit
 folium
 streamlit-folium
+seaborn
+python-dotenv

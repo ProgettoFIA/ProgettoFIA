@@ -1,5 +1,10 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pickle
-from network import scarica_grafo, zoneRosse
+from graph.graph_loader import scarica_grafo, zoneRosse
 
 print("--- DOWNLOAD MAPPA IN CORSO ---")
 grafo = scarica_grafo()

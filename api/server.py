@@ -2,11 +2,12 @@ import os
 import pickle
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from typing import List
-from network import scarica_grafo, get_nearest_node
-from classi import NucleoFamiliare, PuntoSicuro
-from AI import scegli_rifugio_migliore
+from graph.graph_loader import scarica_grafo
+from graph.graph_utils import get_nearest_node
+from core.models import NucleoFamiliare, PuntoSicuro
+from algorithms.selector import scegli_rifugio_migliore
+from api.schemas import CalcoloRequest
 
 grafo_globale = None
 
@@ -14,9 +15,9 @@ grafo_globale = None
 async def lifespan(app: FastAPI):
     global grafo_globale
     
-    # Uso il percorso assoluto per evitare l'errore FileNotFoundError
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_mappa = os.path.join(current_dir, "mappa_napoli.pkl")
+    project_root = os.path.dirname(current_dir)
+    file_mappa = os.path.join(project_root, "mappa_napoli.pkl")
     
     if os.path.exists(file_mappa):
         print(f"Caricamento del grafo dal file locale {file_mappa}...")
@@ -32,25 +33,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Eruplan FIA Service", lifespan=lifespan)
 
-class FamigliaData(BaseModel):
-    nome: str
-    lat: float
-    lon: float
-    in_auto: bool = False
-    con_fragili: bool = False
 
-class RifugioData(BaseModel):
-    nome: str
-    lat: float
-    lon: float
-
-class CalcoloRequest(BaseModel):
-    famiglia: FamigliaData
-    rifugi: List[RifugioData]
-    algoritmo: str = "A*"
-    euristica: str = "euclidea"
-
-# Endpoint principale esposto all'Adapter del modulo GPE
 @app.post("/calcola-percorso")
 def calcola_percorso(req: CalcoloRequest):
     global grafo_globale
@@ -65,7 +48,6 @@ def calcola_percorso(req: CalcoloRequest):
         rif.nodo_grafo = get_nearest_node(grafo_globale, rif.lat, rif.lon)
         rifugi_obj.append(rif)
         
-    # Chiamata all'IA
     rif_migliore, percorso, tempo, exec_time, nodi_esplorati, tempo_miglior_rifugio = scegli_rifugio_migliore(
         grafo_globale, fam, rifugi_obj, algoritmo=req.algoritmo, tipo_euristica=req.euristica
     )
@@ -73,16 +55,13 @@ def calcola_percorso(req: CalcoloRequest):
     if rif_migliore is None:
         return {"status": "error", "message": "Nessun percorso trovato per la famiglia."}
     
-    # Traduce i nodi in coordinate
     coords_percorso = [{"lat": grafo_globale.nodes[n]['pos'][0], "lon": grafo_globale.nodes[n]['pos'][1]} for n in percorso]
       
     return {
         "status": "success",
-        "famiglia": fam.nome,
         "rifugio_assegnato": rif_migliore.nome,
-        "tempo_stimato_minuti": round(tempo, 2),
-        "tempo_esecuzione_ai_sec": round(exec_time, 4),
-        "nodi_esplorati": nodi_esplorati, 
-        "percorso_nodi": percorso,
-        "percorso_coordinate": coords_percorso
+        "percorso_coordinate": coords_percorso,
+        "tempo_stimato_minuti": int(tempo),
+        "nodi_esplorati": nodi_esplorati,
+        "tempo_esecuzione_ai_sec": tempo_miglior_rifugio
     }

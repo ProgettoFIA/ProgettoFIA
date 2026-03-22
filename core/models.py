@@ -1,4 +1,4 @@
-from config import VELOCITA_AUTO
+from core.config import VELOCITA_AUTO
 
 
 class NucleoFamiliare:
@@ -8,7 +8,6 @@ class NucleoFamiliare:
         self.lon = lon
         self.con_fragili = con_fragili
 
-        #convertire velocità da km/h a m/s
         self.speed_ms = VELOCITA_AUTO / 3.6
 
 

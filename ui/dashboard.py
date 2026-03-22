@@ -1,12 +1,14 @@
+import os
+from dotenv import load_dotenv
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import requests
 
-#CONFIGURAZIONE PAGINA
+load_dotenv()
+
 st.set_page_config(page_title="ERUPLAN FIA - Dashboard", layout="wide")
 
-#INTESTAZIONE CON LOGO
 col1, col2 = st.columns([1, 6.25])
 with col1:
     st.markdown('<div class="logo-img">', unsafe_allow_html=True)
@@ -19,18 +21,17 @@ with col2:
 
     st.divider()
 
-#INDIRIZZO API
-#API_URL = "http://127.0.0.1:8000/calcola-percorso"
-API_URL = "https://eruplan-fia-api-a4c6dkd0hvetgse9.italynorth-01.azurewebsites.net/calcola-percorso"
+API_URL = os.getenv(
+    "API_URL",
+    "https://eruplan-fia-api-a4c6dkd0hvetgse9.italynorth-01.azurewebsites.net/calcola-percorso"
+)
 
-#Session State
 if "dati_api" not in st.session_state:
     st.session_state.dati_api = None
     st.session_state.payload_usato = None
 if "storico" not in st.session_state:
     st.session_state.storico = []
 
-#BARRA LATERALE
 with st.sidebar:
     st.header("Parametri di Ricerca")
     algoritmo = st.selectbox("Scegli l'algoritmo", ["A*", "Greedy", "Costo Uniforme"])
@@ -51,7 +52,6 @@ with st.sidebar:
     st.markdown("---")
     calcola_btn = st.button("Calcola Percorso Ottimale", type="primary", use_container_width=True)
 
-#LOGICA DI CALCOLO
 if calcola_btn:
     st.session_state.dati_api = None 
     st.session_state.payload_usato = None
@@ -91,12 +91,10 @@ if calcola_btn:
                 
                 distanza_km = data['tempo_stimato_minuti'] / 2
                 
-                # Formattazione nome algoritmo per la tabella
                 nome_algo = payload["algoritmo"]
                 if nome_algo != "CU":
                     nome_algo += f" ({payload['euristica'][:3].upper()})"
                     
-                # Aggiunta allo storico
                 st.session_state.storico.append({
                     "Algoritmo": nome_algo,
                     "Rifugio": data["rifugio_assegnato"].split(" ")[0],
@@ -110,16 +108,14 @@ if calcola_btn:
                 st.error("Errore dall'API: " + data.get("message", "Sconosciuto"))
                 
         except requests.exceptions.ConnectionError:
-            st.error("Impossibile connettersi all'API. Assicurati che il server FastAPI locale sia acceso (uvicorn app:app)!")
+            st.error("Impossibile connettersi all'API. Assicurati che il server FastAPI locale sia acceso (uvicorn api.server:app)!")
 
-#DISEGNO INTERFACCIA (MAPPA + STORICO)
 if st.session_state.dati_api:
     data = st.session_state.dati_api
     payload = st.session_state.payload_usato
     
     st.success(f"Percorso trovato verso: **{data['rifugio_assegnato']}**")
     
-    #Metriche principali
     col1, col2, col3 = st.columns(3)
     col1.metric("Tempo di Viaggio", f"{data['tempo_stimato_minuti']} min")
     col2.metric("Nodi Esplorati", f"{data['nodi_esplorati']:,}".replace(",", "."))
@@ -146,7 +142,6 @@ if st.session_state.dati_api:
             icon=folium.Icon(color="green", icon="shield")
         ).add_to(m)
 
-        #AGGIUNTA BLACK ZONE
         folium.Circle(
             location=vesuvio_coords,
             radius=4500,

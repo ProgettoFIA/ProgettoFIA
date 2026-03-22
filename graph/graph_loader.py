@@ -1,10 +1,11 @@
 import requests
 import networkx as nx
-from config import BBOX_NAPOLI
-from utils import dist_metri
+from core.config import BBOX_NAPOLI
+from utils.distance import dist_metri
 
 
 def scarica_grafo():
+    # SCARICAMENTO DELLA MAPPA DA OVERPASS API
     print("Download mappa ...")
     url = "https://lz4.overpass-api.de/api/interpreter"
     query = f'[out:json][timeout:500];(way["highway"]({BBOX_NAPOLI});node(w););out body;'
@@ -18,6 +19,7 @@ def scarica_grafo():
         return None
 
     print(f"Costruzione Grafo NetworkX...")
+    # Creazione grafo vuoto e dizionario temporaneo per memorizzare le coordinate
     G = nx.Graph()
     nodes_temp = {}
 
@@ -39,8 +41,8 @@ def scarica_grafo():
     print(f"Grafo pronto! {G.number_of_nodes()} nodi.")
     return G
 
-def zoneRosse(G,crater_lat=40.8224, crater_lon=14.4289, raggio_km=4.5):
-    """Identifica i nodi del grafo che si trovano all'interno del raggio del Vesuvio e li esclude."""
+def zoneRosse(G, crater_lat=40.8224, crater_lon=14.4289, raggio_km=4.5):
+    # ZONA ROSSA: Chiusura dell'accesso a strade entro raggio dal cratere
     print(f"\n🌋 ATTIVAZIONE ZONA ROSSA: Chiusura strade entro {raggio_km}km dal cratere...")
     nodi_zone_rosse = []
     for n, data in G.nodes(data=True):
@@ -52,9 +54,3 @@ def zoneRosse(G,crater_lat=40.8224, crater_lon=14.4289, raggio_km=4.5):
     print(f"🛑 Rimosse {len(nodi_zone_rosse)} intersezioni pericolose dal grafo!")
 
     return G
-
-
-def get_nearest_node(G, lat, lon):
-    """Trova il nodo del grafo più vicino a una coordinata GPS."""
-    return min(G.nodes(data=True),
-               key=lambda n: (n[1]['pos'][0] - lat) ** 2 + (n[1]['pos'][1] - lon) ** 2)[0]
