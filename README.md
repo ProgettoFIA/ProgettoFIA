@@ -82,11 +82,11 @@ The project consists of a **Python backend** (FastAPI) and a **frontend dashboar
    ```
    The dashboard will automatically open in your browser at [http://localhost:8501](http://localhost:8501).
 
-   >**_NOTE:_ For benchmarks and visual graphs run the scripts in /scripts:**
-   >```bash
-   >python main.py
-   >python benchmark_plots.py
-   >```
+  >**_NOTE:_ For benchmarks and visual graphs:**
+  >```bash
+  >python scripts/main.py
+  >python scripts/benchmark_plots.py
+  >```
 
 
 ## ☁️ Deployment
