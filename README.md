@@ -1,4 +1,4 @@
-# 🌋 Eruplan FIA — Intelligent Evacuation Module
+#  Eruplan AI
 
 <p align="center">
   <img src="eruplanlogo.png" alt="Eruplan Logo" height="400"/>
