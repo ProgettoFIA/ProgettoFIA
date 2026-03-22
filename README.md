@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # 🌋 Eruplan FIA — Intelligent Evacuation Module
+=======
+#  Eruplan AI
+>>>>>>> b85dad755c01eb86dd13febaf948e93c33029e49
 
 <p align="center">
   <img src="eruplanlogo.png" alt="Eruplan Logo" height="400"/>
@@ -72,12 +76,17 @@ The project consists of a **Python backend** (FastAPI) and a **frontend dashboar
 4. **Run the Backend (FastAPI):**
    Open a terminal and start the API server. On the first run, this will also download the map (`mappa_napoli.pkl`).
    ```bash
+<<<<<<< HEAD
    uvicorn api.server:app --reload
+=======
+   uvicorn app:app --reload
+>>>>>>> b85dad755c01eb86dd13febaf948e93c33029e49
    ```
 
 5. **Run the Frontend (Streamlit Dashboard):**
    Open a **second terminal**, ensure the virtual environment is active, then run:
    ```bash
+<<<<<<< HEAD
    streamlit run ui/dashboard.py
    ```
    The dashboard will automatically open in your browser at [http://localhost:8501](http://localhost:8501).
@@ -87,6 +96,12 @@ The project consists of a **Python backend** (FastAPI) and a **frontend dashboar
    >python main.py
    >python benchmark_plots.py
    >```
+=======
+   streamlit run dashboard.py
+   ```
+   The dashboard will automatically open in your browser at [http://localhost:8501](http://localhost:8501).
+
+>>>>>>> b85dad755c01eb86dd13febaf948e93c33029e49
 
 
 ## ☁️ Deployment
