@@ -4,6 +4,8 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import requests
+import pandas as pd
+import altair as alt
 
 load_dotenv()
 
@@ -169,14 +171,64 @@ if st.session_state.dati_api:
         st_folium(m, width=800, height=465, returned_objects=[])
 
     with col_storico:
-        st.subheader("Storico Test")
+        st.subheader("📊 Analisi Benchmark")
         
         if st.session_state.storico:
-            storico_inverso = list(reversed(st.session_state.storico))
-            st.dataframe(storico_inverso, use_container_width=True, hide_index=True)
+            # 1. DataFrame dallo storico
+            df = pd.DataFrame(st.session_state.storico)
+            df['Tempo_AI_Num'] = df['Tempo AI'].str.replace(' s', '').astype(float)
+            df['Nodi_Num'] = df['Nodi'].astype(int)
             
-            if st.button("🗑️ Svuota Storico", use_container_width=True):
-                st.session_state.storico = []
-                st.rerun()
+            # 2. Media dei risultati
+            df_avg = df.groupby('Algoritmo', as_index=False)[['Nodi_Num', 'Tempo_AI_Num']].mean()
+            
+            # 3. CREAZIONE DELLA SCALA COLORI RIGIDA CON ALTAIR
+            color_scale = alt.Scale(
+                domain=[
+                    "A* (EUC)", "A* (MAN)", "A* (CHE)",
+                    "CU",
+                    "Greedy (EUC)", "Greedy (MAN)", "Greedy (CHE)"
+                ],
+                range=[
+                    "#E63946", "#900C3F", "#FF7F50",  # Sfumature di Rosso per A*
+                    "#FFC300",                        # Giallo per Costo Uniforme
+                    "#2ECC71", "#145A32", "#82E0AA"   # Sfumature di Verde per Greedy
+                ]
+            )
+            
+            # 4. Schede (Tabs)
+            tab_tabella, tab_grafici = st.tabs(["📝 Storico", "📈 Grafici (Medie)"])
+            
+            with tab_tabella:
+                df_display = df.drop(columns=['Tempo_AI_Num', 'Nodi_Num']).iloc[::-1]
+                st.dataframe(df_display, use_container_width=True, hide_index=True)
+                
+                if st.button("🗑️ Svuota Storico", use_container_width=True):
+                    st.session_state.storico = []
+                    st.rerun()
+                    
+            with tab_grafici:
+                st.caption("Efficienza Spaziale (Media Nodi Esplorati)")
+                
+                # Grafico Altair per i NODI
+                chart_nodi = alt.Chart(df_avg).mark_bar().encode(
+                    x=alt.X('Algoritmo:N', title='', axis=alt.Axis(labelAngle=-45, labelOverlap=False)),
+                    y=alt.Y('Nodi_Num:Q', title='Nodi'),
+                    color=alt.Color('Algoritmo:N', scale=color_scale, legend=None),
+                    tooltip=['Algoritmo', 'Nodi_Num']
+                ).properties(height=300)
+                st.altair_chart(chart_nodi, use_container_width=True)
+                
+                st.caption("Efficienza Temporale (Media Tempo IA in sec)")
+                
+                # Grafico Altair per il TEMPO
+                chart_tempo = alt.Chart(df_avg).mark_bar().encode(
+                    x=alt.X('Algoritmo:N', title='', axis=alt.Axis(labelAngle=-45, labelOverlap=False)),
+                    y=alt.Y('Tempo_AI_Num:Q', title='Secondi'),
+                    color=alt.Color('Algoritmo:N', scale=color_scale, legend=None),
+                    tooltip=['Algoritmo', 'Tempo_AI_Num']
+                ).properties(height=300)
+                st.altair_chart(chart_tempo, use_container_width=True)
+                
         else:
-            st.info("Esegui un calcolo per popolare lo storico.")
+            st.info("👈 Esegui dei calcoli per popolare lo storico e generare i grafici comparativi.")
